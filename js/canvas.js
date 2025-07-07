@@ -1,25 +1,55 @@
-var gameManager;
+let rlMode = "train";
+let simSpeed = 10;
 
-function setup() {
-  var canvas = createCanvas(400, 400);
-  gameManager = new GameManager(canvas);
-}
+let env;
+let game;
 
-function draw() {
-  frameRate(60);
-  gameManager.draw();
-}
+const humanSketch = (p) => {
+  p.setup = () => {
+    const canvas = p.createCanvas(400, 400);
+    canvas.parent("human-canvas");
+    game = new GameManager(p);
+  };
 
-function keyPressed() {
-  if (gameManager.gameOver && key === "r") {
-    gameManager.restart();
-    return;
-  }
-  var direction = null;
-  if (keyCode === UP_ARROW) direction = [0, -1];
-  else if (keyCode === DOWN_ARROW) direction = [0, 1];
-  else if (keyCode === LEFT_ARROW) direction = [-1, 0];
-  else if (keyCode === RIGHT_ARROW) direction = [1, 0];
+  p.draw = () => {
+    p.background(0);
+    p.frameRate(60);
+    game.draw();
+  };
 
-  if (direction) gameManager.setDirection(direction[0], direction[1]);
-}
+  p.keyPressed = () => {
+    if (p.key === "r") {
+      game.initialize();
+      env.game.initialize();
+      return;
+    }
+
+    let direction = null;
+    if (p.keyCode === p.UP_ARROW) direction = [0, -1];
+    else if (p.keyCode === p.DOWN_ARROW) direction = [0, 1];
+    else if (p.keyCode === p.LEFT_ARROW) direction = [-1, 0];
+    else if (p.keyCode === p.RIGHT_ARROW) direction = [1, 0];
+
+    if (direction) {
+      game.setDirection(direction[0], direction[1]);
+      env.startGame();
+    }
+  };
+};
+
+const rlSketch = (p) => {
+  p.setup = () => {
+    const canvas = p.createCanvas(400, 400);
+    canvas.parent("rl-canvas");
+    env = new SnakeEnv(p);
+  };
+
+  p.draw = () => {
+    p.background(0);
+    p.frameRate(60);
+    env.draw();
+  };
+};
+
+new p5(humanSketch);
+new p5(rlSketch);

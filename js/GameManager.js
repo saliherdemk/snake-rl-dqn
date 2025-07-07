@@ -1,19 +1,25 @@
 class GameManager {
-  constructor() {
+  constructor(p) {
+    this.p = p;
     this.gridSize = 20;
-    this.grid = Array.from({ length: this.gridSize }, () =>
-      Array(this.gridSize).fill(0),
-    );
-
-    this.moveInterval = 100;
-    this.lastMoveTime = 0;
+    this.grid;
+    this.moveInterval;
+    this.lastMoveTime;
     this.foodPosition;
-    this.gameOver = false;
-    this.started = false;
+    this.gameOver;
+    this.started;
     this.initialize();
   }
 
   initialize() {
+    this.grid = Array.from({ length: this.gridSize }, () =>
+      Array(this.gridSize).fill(0),
+    );
+    this.gameOver = false;
+    this.started = false;
+    this.moveInterval = 100;
+    this.lastMoveTime = 0;
+
     let snakePos = this.getRandomCell();
     this.snake = [snakePos];
     this.grid[snakePos.x][snakePos.y] = 1;
@@ -21,56 +27,26 @@ class GameManager {
     this.placeFood();
   }
 
-  restart() {
-    this.grid = Array.from({ length: this.gridSize }, () =>
-      Array(this.gridSize).fill(0),
-    );
-    this.gameOver = false;
-    this.started = false;
-    this.lastMoveTime = 0;
-    this.initialize();
-  }
-
   draw() {
     if (this.gameOver) {
-      fill(255, 0, 0);
-      textAlign(CENTER, CENTER);
-      textSize(32);
-      text("GAME OVER", width / 2, height / 4);
-      text("Your Score: " + this.snake.length, width / 2, height / 2 + 50);
+      this.displayGameOver();
       return;
     }
 
-    var cellSize = width / this.gridSize;
-    var grid = this.grid;
-    for (let w = 0; w < grid.length; w++) {
-      for (let h = 0; h < grid[0].length; h++) {
-        let val = grid[w][h];
-        if (val == 2) {
-          fill(255, 0, 0);
-        } else if (val == 1) {
-          fill(0);
-        } else {
-          fill(255);
-        }
-        rect(w * cellSize, h * cellSize, cellSize, cellSize);
-      }
-    }
+    this.displayGrid();
 
-    if (this.started && millis() - this.lastMoveTime > this.moveInterval) {
+    let isStarted = this.started;
+    if (isStarted && this.p.millis() - this.lastMoveTime > this.moveInterval) {
       this.update();
-      this.lastMoveTime = millis();
+      this.lastMoveTime = this.p.millis();
     }
 
-    if (!this.started) {
-      fill(0);
-      textSize(18);
-      textAlign(CENTER, CENTER);
-      text("Press an arrow key to start", width / 2, height / 2);
-    }
+    if (!isStarted) this.displayInstructions();
   }
 
   update() {
+    this.clearGrid();
+
     const head = this.snake[this.snake.length - 1];
     const newHead = {
       x: head.x + this.direction.x,
@@ -85,13 +61,13 @@ class GameManager {
       newHead.x === this.foodPosition.x &&
       newHead.y === this.foodPosition.y
     ) {
+      this.justAteFood = true;
       this.placeFood();
       this.moveInterval = Math.max(this.moveInterval - 5, 40);
     } else {
+      this.justAteFood = false;
       this.snake.shift();
     }
-
-    this.clearGrid();
 
     for (let segment of this.snake) {
       this.grid[segment.x][segment.y] = 1;
@@ -149,5 +125,41 @@ class GameManager {
     }
     this.grid[x][y] = 2;
     this.foodPosition = { x, y };
+  }
+
+  displayGameOver() {
+    let p = this.p;
+    p.fill(255, 0, 0);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.textSize(32);
+    p.text("GAME OVER", p.width / 2, p.height / 4);
+    p.text("Your Score: " + this.snake.length, p.width / 2, p.height / 2 + 50);
+  }
+
+  displayGrid() {
+    let p = this.p;
+    var cellSize = p.width / this.gridSize;
+    var grid = this.grid;
+    for (let w = 0; w < grid.length; w++) {
+      for (let h = 0; h < grid[0].length; h++) {
+        let val = grid[w][h];
+        if (val == 2) {
+          p.fill(255, 0, 0);
+        } else if (val == 1) {
+          p.fill(255, 255, 0);
+        } else {
+          p.fill(0);
+        }
+        p.rect(w * cellSize, h * cellSize, cellSize, cellSize);
+      }
+    }
+  }
+
+  displayInstructions() {
+    let p = this.p;
+    p.fill(255);
+    p.textSize(18);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.text("Press an arrow key to start", p.width / 2, p.height / 2);
   }
 }
