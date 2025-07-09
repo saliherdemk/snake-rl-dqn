@@ -1,13 +1,19 @@
 class GameManager {
 	constructor(p) {
 		this.p = p;
-		this.gridSize = 20;
+		this.gridSize = 10;
 		this.grid;
 		this.moveInterval;
 		this.lastMoveTime;
 		this.foodPosition;
 		this.gameOver;
 		this.started;
+		this.directions = [
+			[0, -1], // up
+			[0, 1], // down
+			[-1, 0], // left
+			[1, 0], // right
+		];
 		this.initialize();
 	}
 
@@ -24,6 +30,7 @@ class GameManager {
 		this.snake = [snakePos];
 		this.grid[snakePos.x][snakePos.y] = 1;
 		this.direction = { x: 1, y: 0 };
+		this.directionIndex = 3;
 		this.placeFood();
 	}
 
@@ -96,6 +103,55 @@ class GameManager {
 		return false;
 	}
 
+	getReducedState() {
+		// Adopted from https://github.com/vedantgoswami/SnakeGameAI/blob/main/agent.py
+		const head = this.snake[this.snake.length - 1];
+		const dirIndex = this.directionIndex;
+
+		const dir_up = this.directionIndex == 0 ? 1 : 0;
+		const dir_down = this.directionIndex == 1 ? 1 : 0;
+		const dir_left = this.directionIndex == 2 ? 1 : 0;
+		const dir_right = this.directionIndex == 3 ? 1 : 0;
+
+		const turnLeft = [2, 3, 1, 0];
+		const turnRight = [3, 2, 0, 1];
+
+		const leftIndex = turnLeft[dirIndex];
+		const rightIndex = turnRight[dirIndex];
+
+		const danger_straight = this.is_collision(head, dirIndex) ? 1 : 0;
+		const danger_left = this.is_collision(head, leftIndex) ? 1 : 0;
+		const danger_right = this.is_collision(head, rightIndex) ? 1 : 0;
+
+		const foodOnLeft = this.foodPosition.x < head.x;
+		const foodOnRight = this.foodPosition.x > head.x;
+		const foodOnUp = this.foodPosition.y < head.y;
+		const foodOnDown = this.foodPosition.y > head.y;
+
+		return [
+			dir_up,
+			dir_down,
+			dir_left,
+			dir_right,
+			danger_straight,
+			danger_left,
+			danger_right,
+			foodOnLeft,
+			foodOnRight,
+			foodOnUp,
+			foodOnDown,
+		];
+	}
+
+	is_collision(head, direction) {
+		const newDirection = this.directions[direction];
+		const newHead = {
+			x: head.x + newDirection.x,
+			y: head.y + newDirection.y,
+		};
+		return this.checkGameOver(newHead);
+	}
+
 	clearGrid() {
 		for (let x = 0; x < this.gridSize; x++) {
 			for (let y = 0; y < this.gridSize; y++) {
@@ -106,9 +162,11 @@ class GameManager {
 		}
 	}
 
-	setDirection(x, y) {
+	setDirection(action) {
+		const [x, y] = this.directions[action];
 		if (!(x === -this.direction.x && y === -this.direction.y)) {
 			this.direction = { x, y };
+			this.directionIndex = action;
 			this.started = true;
 		}
 	}

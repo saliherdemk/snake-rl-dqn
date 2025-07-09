@@ -13,11 +13,11 @@ class SnakeEnv {
 
 	initialize() {
 		const model = new Model([
-			new Dense(this.game.gridSize * this.game.gridSize, 64),
+			new Dense(11, 32),
 			new Relu(),
-			new Dense(64, 32),
+			new Dense(32, 16),
 			new Relu(),
-			new Dense(32, 4),
+			new Dense(16, 4),
 		]);
 		this.agent = new Agent(model);
 		this.replayBuffer = new ReplayBuffer();
@@ -25,14 +25,13 @@ class SnakeEnv {
 
 	reset() {
 		this.game.initialize();
-		return this.getState();
 	}
 
 	step(action) {
 		this.setDirection(action);
 		this.game.update();
 
-		const state = this.getState();
+		const state = this.game.getReducedState();
 		const reward = this.getReward();
 		const done = this.game.gameOver;
 
@@ -40,41 +39,19 @@ class SnakeEnv {
 	}
 
 	setDirection(action) {
-		const directions = [
-			[0, -1], // up
-			[0, 1], // down
-			[-1, 0], // left
-			[1, 0], // right
-		];
-
-		const [dx, dy] = directions[action];
-		this.game.setDirection(dx, dy);
-	}
-
-	getState() {
-		return this.game.grid.map((row) => row.slice());
+		this.game.setDirection(action);
 	}
 
 	// getReward() {
 	// 	if (this.game.gameOver) return -10;
 	// 	else if (this.game.justAteFood) return 10;
-	// 	else return -0.1;
+	// 	else return 0;
 	// }
-	//
+
 	getReward() {
-		const head = this.game.snake[this.game.snake.length - 1];
-		const food = this.game.foodPosition;
-
-		const dist = Math.abs(head.x - food.x) + Math.abs(head.y - food.y);
-		const delta =
-			this.prevDistance !== undefined ? this.prevDistance - dist : 0;
-		this.prevDistance = dist;
-
-		const clippedDelta = Math.max(-1, Math.min(1, delta));
-
 		if (this.game.gameOver) return -10;
 		else if (this.game.justAteFood) return 10;
-		else return -0.01 + 0.05 * clippedDelta;
+		else return -0.01;
 	}
 
 	draw() {
@@ -91,23 +68,28 @@ class SnakeEnv {
 	}
 
 	train() {
-		const currentState = this.getState();
-		const action = this.agent.act(currentState.flat());
+		const currentState = this.game.getReducedState();
+		const action = this.agent.act(currentState);
 		const { state: nextState, reward, done } = this.step(action);
 
 		this.replayBuffer.push({
-			state: currentState.flat(),
+			state: currentState,
 			action,
 			reward,
-			nextState: nextState.flat(),
+			nextState: nextState,
 			done,
 		});
 
+		if (this.replayBuffer.size() > 64) {
+			const batch = this.replayBuffer.sample(64);
+			this.agent.train(batch);
+		}
+
 		if (done) {
-			for (let i = 0; i < 5; i++) {
-				const batch = this.replayBuffer.sample(32);
-				this.agent.train(batch);
-			}
+			// for (let i = 0; i < 5; i++) {
+			// 	const batch = this.replayBuffer.sample(32);
+			// 	this.agent.train(batch);
+			// }
 			this.episodeCount++;
 			this.updateEpisode();
 			this.reset();

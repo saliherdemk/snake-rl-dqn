@@ -25,13 +25,13 @@ const humanSketch = (p) => {
 		}
 
 		let direction = null;
-		if (p.keyCode === p.UP_ARROW) direction = [0, -1];
-		else if (p.keyCode === p.DOWN_ARROW) direction = [0, 1];
-		else if (p.keyCode === p.LEFT_ARROW) direction = [-1, 0];
-		else if (p.keyCode === p.RIGHT_ARROW) direction = [1, 0];
+		if (p.keyCode === p.UP_ARROW) direction = 0;
+		else if (p.keyCode === p.DOWN_ARROW) direction = 1;
+		else if (p.keyCode === p.LEFT_ARROW) direction = 2;
+		else if (p.keyCode === p.RIGHT_ARROW) direction = 3;
 
-		if (direction) {
-			game.setDirection(direction[0], direction[1]);
+		if (direction !== null) {
+			game.setDirection(direction);
 			env.startGame();
 		}
 	};

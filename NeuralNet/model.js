@@ -4,8 +4,6 @@ class Model {
 	}
 
 	forward(x) {
-		x = x.map((v) => v / 2);
-
 		for (const layer of this.layers) {
 			x = layer.forward(x);
 		}
@@ -27,12 +25,10 @@ class Model {
 		}
 	}
 
-	train(state, action, targetQ, lr = 0.001) {
-		const predictedQs = this.forward(state);
+	train(predQ, targetQ, action, lr = 0.001) {
+		const error = predQ[action] - targetQ;
 
-		const error = predictedQs[action] - targetQ;
-
-		const gradOutput = new Array(predictedQs.length).fill(0);
+		const gradOutput = new Array(predQ.length).fill(0);
 
 		// Derivative of MSE loss w.r.t output Q-value for 'action'
 		gradOutput[action] = 2 * error;

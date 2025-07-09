@@ -3,7 +3,7 @@ class Agent {
 		model,
 		gamma = 0.99,
 		epsilon = 1.0,
-		epsilonDecay = 0.995,
+		epsilonDecay = 0.999,
 		minEpsilon = 0.1,
 	) {
 		this.model = model;
@@ -37,36 +37,27 @@ class Agent {
 
 	train(batch) {
 		let totalLoss = 0;
-		let totalPredQ = 0;
-		let totalTargetQ = 0;
 
 		for (const { state, action, reward, nextState, done } of batch) {
-			const predQ = this.model.forward(state);
+			const currentQ = this.model.forward(state);
+
 			const nextQ = this.model.forward(nextState);
-			const maxNextQ = done ? 0 : Math.max(...nextQ);
-			const targetQ = reward + this.gamma * maxNextQ;
+			const targetQ =
+				reward + (done ? 0 : this.gamma * Math.max(...nextQ));
 
-			const error = predQ[action] - targetQ;
-			const loss = error ** 2;
+			const clippedTargetQ = Math.max(-10, Math.min(10, targetQ));
 
-			totalLoss += loss;
-			totalPredQ += predQ[action];
-			totalTargetQ += targetQ;
+			this.model.train(currentQ, clippedTargetQ, action);
 
-			this.model.train(state, action, targetQ);
+			const error = currentQ[action] - clippedTargetQ;
+			totalLoss += error ** 2;
 		}
-
-		const avgLoss = totalLoss / batch.length;
-		const avgPredQ = totalPredQ / batch.length;
-		const avgTargetQ = totalTargetQ / batch.length;
-
-		console.log(
-			`[Train] Loss: ${avgLoss.toFixed(4)} | Q: ${avgPredQ.toFixed(2)} -> ${avgTargetQ.toFixed(2)} | ε: ${this.epsilon.toFixed(3)}`,
-		);
 
 		this.epsilon = Math.max(
 			this.minEpsilon,
 			this.epsilon * this.epsilonDecay,
 		);
+
+		console.log(totalLoss / batch.length);
 	}
 }
