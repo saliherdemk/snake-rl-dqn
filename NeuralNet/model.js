@@ -37,4 +37,19 @@ class Model {
 
 		this.update(lr);
 	}
+
+	save() {
+		let result = [];
+		for (const layer of this.layers) {
+			result.push(layer.getParameters());
+		}
+		return result;
+	}
+
+	load(data) {
+		console.log(data);
+		for (let i = 0; i < data.length; i++) {
+			this.layers[i].load(data[i]);
+		}
+	}
 }

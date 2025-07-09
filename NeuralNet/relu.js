@@ -11,4 +11,10 @@ class Relu {
 		}
 		return grad_input;
 	}
+
+	getParameters() {
+		return { weights: null, biases: null };
+	}
+
+	load(data) {}
 }

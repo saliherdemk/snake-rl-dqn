@@ -3,9 +3,7 @@ class SnakeEnv {
 		this.p = p;
 		this.game = new GameManager(p);
 		this.actionSpace = [0, 1, 2, 3];
-		this.simSpeed = 10;
 		this.rlMode = "eval";
-		this.attachEvents();
 		this.lastStepTime = 0;
 		this.episodeCount = 0;
 		this.initialize();
@@ -91,7 +89,7 @@ class SnakeEnv {
 			// 	this.agent.train(batch);
 			// }
 			this.episodeCount++;
-			this.updateEpisode();
+			updateEpisodeLabel(this.episodeCount);
 			this.reset();
 		}
 	}
@@ -102,28 +100,12 @@ class SnakeEnv {
 		this.setDirection(action);
 	}
 
-	attachEvents() {
-		document.getElementById("mode-toggle").onclick = () => {
-			rlMode = this.rlMode === "train" ? "eval" : "train";
-			document.getElementById("mode-toggle").innerText =
-				`Mode: ${rlMode.charAt(0).toUpperCase() + rlMode.slice(1)}`;
-
-			const inTrainMode = rlMode === "train";
-			document.getElementById("speed-slider").disabled = !inTrainMode;
-			document.getElementById("speed-label").style.color = inTrainMode
-				? "black"
-				: "lightgray";
-			this.rlMode = rlMode;
-			this.reset();
-		};
-
-		document.getElementById("speed-slider").oninput = (e) => {
-			this.simSpeed = parseInt(e.target.value);
-		};
-	}
-
-	updateEpisode() {
-		document.getElementById("episode-counter").innerText =
-			this.episodeCount;
+	toggleMode() {
+		const rlMode = this.rlMode === "train" ? "eval" : "train";
+		changeModeButtonText(
+			`Mode: ${rlMode.charAt(0).toUpperCase() + rlMode.slice(1)}`,
+		);
+		this.rlMode = rlMode;
+		this.reset();
 	}
 }

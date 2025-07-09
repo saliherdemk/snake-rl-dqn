@@ -58,6 +58,6 @@ class Agent {
 			this.epsilon * this.epsilonDecay,
 		);
 
-		console.log(totalLoss / batch.length);
+		// console.log(totalLoss / batch.length);
 	}
 }

@@ -86,4 +86,13 @@ class Dense {
 		}
 		return result;
 	}
+
+	getParameters() {
+		return { weights: this.weights, biases: this.biases };
+	}
+
+	load(data) {
+		this.weights = data.weights;
+		this.biases = data.biases;
+	}
 }
