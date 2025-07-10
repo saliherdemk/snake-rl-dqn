@@ -40,22 +40,29 @@ class SnakeEnv {
 		this.game.setDirection(action);
 	}
 
-	// getReward() {
-	// 	if (this.game.gameOver) return -10;
-	// 	else if (this.game.justAteFood) return 10;
-	// 	else return 0;
-	// }
-
 	getReward() {
-		if (this.game.gameOver) return -10;
-		else if (this.game.justAteFood) return 10;
-		else return -0.01;
+		if (this.game.gameOver) return -1;
+		else if (this.game.justAteFood) return 1;
+		else return -0.005;
 	}
+
+	// getReward() {
+	// 	const game = this.game;
+	// 	const head = game.snake[game.snake.length - 1];
+	// 	const food = game.foodPosition;
+	// 	const dist = Math.abs(head.x - food.x) + Math.abs(head.y - food.y);
+	//
+	// 	if (game.gameOver) return -2; // Less extreme penalty
+	// 	if (game.justAteFood) return 1 + 1 / dist; // Distance bonus
+	// 	if (game.starvationTimer > game.snake.length * 2) return -0.1; // Hunger penalty
+	// 	return -0.001; // Tiny step penalty
+	// }
 
 	draw() {
 		if (this.rlMode == "eval") {
 			if (this.game.started) {
-				const action = Math.floor(Math.random() * 4);
+				const currentstate = this.game.getReducedState();
+				const action = this.agent.act(currentstate, true);
 				this.setDirection(action);
 			}
 		} else {

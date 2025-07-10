@@ -47,9 +47,16 @@ class Model {
 	}
 
 	load(data) {
-		console.log(data);
 		for (let i = 0; i < data.length; i++) {
 			this.layers[i].load(data[i]);
 		}
+	}
+
+	clone() {
+		let newLayers = [];
+		this.layers.forEach((layer) => {
+			newLayers.push(layer.clone());
+		});
+		return new Model(newLayers);
 	}
 }

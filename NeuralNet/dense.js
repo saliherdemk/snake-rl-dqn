@@ -95,4 +95,10 @@ class Dense {
 		this.weights = data.weights;
 		this.biases = data.biases;
 	}
+
+	clone() {
+		const newLayer = new Dense();
+		newLayer.load(this.getParameters());
+		return newLayer;
+	}
 }

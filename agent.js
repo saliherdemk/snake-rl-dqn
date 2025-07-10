@@ -7,14 +7,17 @@ class Agent {
 		minEpsilon = 0.1,
 	) {
 		this.model = model;
+		this.targetModel = model.clone();
+		this.targetUpdateFreq = 100;
+		this.steps = 0;
 		this.gamma = gamma;
 		this.epsilon = epsilon;
 		this.epsilonDecay = epsilonDecay;
 		this.minEpsilon = minEpsilon;
 	}
 
-	act(state) {
-		if (Math.random() < this.epsilon) {
+	act(state, isEval = false) {
+		if (Math.random() < this.epsilon && !isEval) {
 			return Math.floor(Math.random() * 4);
 		}
 
@@ -41,7 +44,7 @@ class Agent {
 		for (const { state, action, reward, nextState, done } of batch) {
 			const currentQ = this.model.forward(state);
 
-			const nextQ = this.model.forward(nextState);
+			const nextQ = this.targetModel.forward(nextState);
 			const targetQ =
 				reward + (done ? 0 : this.gamma * Math.max(...nextQ));
 
@@ -58,6 +61,16 @@ class Agent {
 			this.epsilon * this.epsilonDecay,
 		);
 
+		this.steps++;
+		if (this.steps % this.targetUpdateFreq === 0) {
+			this.targetModel = this.model.clone();
+		}
+
 		// console.log(totalLoss / batch.length);
+	}
+
+	load(data) {
+		this.model.load(data);
+		this.targetModel = this.model.clone();
 	}
 }

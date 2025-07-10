@@ -17,4 +17,8 @@ class Relu {
 	}
 
 	load(data) {}
+
+	clone() {
+		return new Relu();
+	}
 }

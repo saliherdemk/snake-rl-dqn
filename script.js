@@ -24,7 +24,7 @@ document.getElementById("load-button").addEventListener("change", (event) => {
 	reader.onload = function (e) {
 		try {
 			const json = JSON.parse(e.target.result);
-			env.agent.model.load(json);
+			env.agent.load(json);
 		} catch (err) {
 			alert("Invalid JSON file." + err);
 		}

@@ -1,13 +1,14 @@
 class GameManager {
 	constructor(p) {
 		this.p = p;
-		this.gridSize = 10;
+		this.gridSize = 20;
 		this.grid;
 		this.moveInterval;
 		this.lastMoveTime;
 		this.foodPosition;
 		this.gameOver;
 		this.started;
+		this.directionChanged = false;
 		this.directions = [
 			[0, -1], // up
 			[0, 1], // down
@@ -30,6 +31,7 @@ class GameManager {
 		this.snake = [snakePos];
 		this.grid[snakePos.x][snakePos.y] = 1;
 		this.direction = { x: 1, y: 0 };
+		this.directionChanged = false;
 		this.directionIndex = 3;
 		this.placeFood();
 	}
@@ -83,6 +85,7 @@ class GameManager {
 		}
 
 		if (this.justAteFood) this.placeFood();
+		this.directionChanged = false;
 	}
 
 	checkGameOver(newHead) {
@@ -164,9 +167,14 @@ class GameManager {
 
 	setDirection(action) {
 		const [x, y] = this.directions[action];
-		if (!(x === -this.direction.x && y === -this.direction.y)) {
+
+		if (
+			!this.directionChanged &&
+			!(x === -this.direction.x && y === -this.direction.y)
+		) {
 			this.direction = { x, y };
 			this.directionIndex = action;
+			this.directionChanged = true;
 			this.started = true;
 		}
 	}
