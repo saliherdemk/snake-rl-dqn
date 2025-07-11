@@ -1,17 +1,14 @@
 class SnakeEnv {
 	constructor(p) {
-		this.p = p;
 		this.game = new GameManager(p);
-		this.actionSpace = [0, 1, 2, 3];
 		this.rlMode = "eval";
-		this.lastStepTime = 0;
 		this.episodeCount = 0;
 		this.initialize();
 	}
 
 	initialize() {
 		const model = new Model([
-			new Dense(11, 32),
+			new Dense(14, 32),
 			new Relu(),
 			new Dense(32, 16),
 			new Relu(),
@@ -29,7 +26,7 @@ class SnakeEnv {
 		this.setDirection(action);
 		this.game.update();
 
-		const state = this.game.getReducedState();
+		const state = this.getReducedState();
 		const reward = this.getReward();
 		const done = this.game.gameOver;
 
@@ -64,7 +61,7 @@ class SnakeEnv {
 	draw() {
 		if (this.rlMode == "eval") {
 			if (this.game.started) {
-				const currentstate = this.game.getReducedState();
+				const currentstate = this.getReducedState();
 				const relativeAction = this.agent.act(currentstate, true);
 				const absAction = this.getAbsDirFromRelative(relativeAction);
 				this.setDirection(absAction);
@@ -77,7 +74,7 @@ class SnakeEnv {
 	}
 
 	train() {
-		const currentState = this.game.getReducedState();
+		const currentState = this.getReducedState();
 		const relativeAction = this.agent.act(currentState);
 		const absAction = this.getAbsDirFromRelative(relativeAction);
 		const { state: nextState, reward, done } = this.step(absAction);
@@ -123,5 +120,9 @@ class SnakeEnv {
 
 	getEpisodeCount() {
 		return this.episodeCount;
+	}
+
+	getReducedState() {
+		return StateExtractor.getReducedState(this.game);
 	}
 }

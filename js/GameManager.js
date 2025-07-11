@@ -2,13 +2,6 @@ class GameManager {
 	constructor(p) {
 		this.p = p;
 		this.gridSize = 20;
-		this.grid;
-		this.moveInterval;
-		this.lastMoveTime;
-		this.foodPosition;
-		this.gameOver;
-		this.started;
-		this.directionChanged = false;
 		this.directions = [
 			[0, -1], // up
 			[0, 1], // down
@@ -37,38 +30,30 @@ class GameManager {
 	}
 
 	draw() {
-		if (this.gameOver) {
-			this.displayGameOver();
-			return;
-		}
-
+		if (this.gameOver) return this.displayGameOver();
 		this.displayGrid();
-
-		let isStarted = this.started;
 		if (
-			isStarted &&
+			this.started &&
 			this.p.millis() - this.lastMoveTime > this.moveInterval
 		) {
 			this.update();
 			this.lastMoveTime = this.p.millis();
 		}
-
-		if (!isStarted) this.displayInstructions();
+		if (!this.started) this.displayInstructions();
 	}
 
 	update() {
 		this.clearGrid();
-
-		const head = this.snake[this.snake.length - 1];
+		const snake = this.snake;
+		const head = snake[snake.length - 1];
 		const newHead = {
 			x: head.x + this.direction.x,
 			y: head.y + this.direction.y,
 		};
 
-		this.gameOver = this.checkGameOver(newHead);
-		if (this.gameOver) return;
-		this.snake.push(newHead);
+		if (this.checkGameOver(newHead)) return (this.gameOver = true);
 
+		snake.push(newHead);
 		if (
 			newHead.x === this.foodPosition.x &&
 			newHead.y === this.foodPosition.y
@@ -77,13 +62,10 @@ class GameManager {
 			this.moveInterval = Math.max(this.moveInterval - 5, 40);
 		} else {
 			this.justAteFood = false;
-			this.snake.shift();
+			snake.shift();
 		}
 
-		for (let segment of this.snake) {
-			this.grid[segment.x][segment.y] = 1;
-		}
-
+		for (let s of snake) this.grid[s.x][s.y] = 1;
 		if (this.justAteFood) this.placeFood();
 		this.directionChanged = false;
 	}
@@ -94,77 +76,25 @@ class GameManager {
 			newHead.x >= this.gridSize ||
 			newHead.y < 0 ||
 			newHead.y >= this.gridSize
-		) {
+		)
 			return true;
-		}
 
-		for (let segment of this.snake) {
-			if (segment.x === newHead.x && segment.y === newHead.y) {
-				return true;
-			}
+		for (let s of this.snake) {
+			if (s.x === newHead.x && s.y === newHead.y) return true;
 		}
 		return false;
-	}
-
-	getReducedState() {
-		// Adopted from https://github.com/vedantgoswami/SnakeGameAI/blob/main/agent.py
-		const head = this.snake[this.snake.length - 1];
-		const dirIndex = this.directionIndex;
-
-		const dir_up = this.directionIndex == 0 ? 1 : 0;
-		const dir_down = this.directionIndex == 1 ? 1 : 0;
-		const dir_left = this.directionIndex == 2 ? 1 : 0;
-		const dir_right = this.directionIndex == 3 ? 1 : 0;
-
-		const turnLeft = [2, 3, 1, 0];
-		const turnRight = [3, 2, 0, 1];
-
-		const leftIndex = turnLeft[dirIndex];
-		const rightIndex = turnRight[dirIndex];
-
-		const danger_straight = this.is_collision(head, dirIndex) ? 1 : 0;
-		const danger_left = this.is_collision(head, leftIndex) ? 1 : 0;
-		const danger_right = this.is_collision(head, rightIndex) ? 1 : 0;
-
-		const foodOnLeft = this.foodPosition.x < head.x ? 1 : 0;
-		const foodOnRight = this.foodPosition.x > head.x ? 1 : 0;
-		const foodOnUp = this.foodPosition.y < head.y ? 1 : 0;
-		const foodOnDown = this.foodPosition.y > head.y ? 1 : 0;
-
-		return [
-			dir_up,
-			dir_down,
-			dir_left,
-			dir_right,
-			danger_straight,
-			danger_left,
-			danger_right,
-			foodOnLeft,
-			foodOnRight,
-			foodOnUp,
-			foodOnDown,
-		];
-	}
-
-	is_collision(head, dirIndex) {
-		const d = this.directions[dirIndex];
-		const newHead = { x: head.x + d[0], y: head.y + d[1] };
-		return this.checkGameOver(newHead);
 	}
 
 	clearGrid() {
 		for (let x = 0; x < this.gridSize; x++) {
 			for (let y = 0; y < this.gridSize; y++) {
-				if (this.grid[x][y] === 1) {
-					this.grid[x][y] = 0;
-				}
+				if (this.grid[x][y] === 1) this.grid[x][y] = 0;
 			}
 		}
 	}
 
 	setDirection(actionIndex) {
 		const [x, y] = this.directions[actionIndex];
-
 		if (
 			!this.directionChanged &&
 			!(x === -this.direction.x && y === -this.direction.y)
@@ -184,12 +114,7 @@ class GameManager {
 
 	placeFood() {
 		let { x, y } = this.getRandomCell();
-
-		while (this.grid[x][y] !== 0) {
-			let cell = this.getRandomCell();
-			x = cell.x;
-			y = cell.y;
-		}
+		while (this.grid[x][y] !== 0) ({ x, y } = this.getRandomCell());
 		this.grid[x][y] = 2;
 		this.foodPosition = { x, y };
 	}
@@ -209,19 +134,17 @@ class GameManager {
 
 	displayGrid() {
 		let p = this.p;
-		var cellSize = p.width / this.gridSize;
-		var grid = this.grid;
-		for (let w = 0; w < grid.length; w++) {
-			for (let h = 0; h < grid[0].length; h++) {
-				let val = grid[w][h];
-				if (val == 2) {
-					p.fill(255, 0, 0);
-				} else if (val == 1) {
-					p.fill(255, 255, 0);
-				} else {
-					p.fill(0);
-				}
-				p.rect(w * cellSize, h * cellSize, cellSize, cellSize);
+		let s = p.width / this.gridSize;
+		for (let x = 0; x < this.grid.length; x++) {
+			for (let y = 0; y < this.grid[0].length; y++) {
+				p.fill(
+					this.grid[x][y] === 2
+						? [255, 0, 0]
+						: this.grid[x][y] === 1
+							? [255, 255, 0]
+							: 0,
+				);
+				p.rect(x * s, y * s, s, s);
 			}
 		}
 	}

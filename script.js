@@ -54,7 +54,7 @@ function train() {
 	const trainEnv = new SnakeEnv(null);
 
 	let i = trainEnv.getEpisodeCount();
-	while (i < 2000) {
+	while (i < 1000) {
 		trainEnv.train();
 		i = trainEnv.getEpisodeCount();
 		console.log(i);
