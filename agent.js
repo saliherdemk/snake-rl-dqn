@@ -18,25 +18,12 @@ class Agent {
 
 	act(state, isEval = false) {
 		if (Math.random() < this.epsilon && !isEval) {
-			return Math.floor(Math.random() * 4);
+			return Math.floor(Math.random() * 3);
 		}
 
 		const qValues = this.model.forward(state);
 		return qValues.indexOf(Math.max(...qValues));
 	}
-
-	// train(batch) {
-	// 	for (const { state, action, reward, nextState, done } of batch) {
-	// 		const nextQ = this.model.forward(nextState);
-	// 		const targetQ = reward + this.gamma * done ? 0 : Math.max(...nextQ);
-	// 		this.model.train(state, action, targetQ);
-	// 	}
-	//
-	// 	this.epsilon = Math.max(
-	// 		this.minEpsilon,
-	// 		this.epsilon * this.epsilonDecay,
-	// 	);
-	// }
 
 	train(batch) {
 		let totalLoss = 0;

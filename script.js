@@ -41,3 +41,25 @@ document.getElementById("save-button").onclick = () => {
 	const json = JSON.stringify(m);
 	saveAsJson(json);
 };
+
+document.getElementById("load-pretrained").onclick = () => {
+	env.agent.load(preTrainedModel);
+};
+
+document.getElementById("train").onclick = () => {
+	train();
+};
+
+function train() {
+	const trainEnv = new SnakeEnv(null);
+
+	let i = trainEnv.getEpisodeCount();
+	while (i < 2000) {
+		trainEnv.train();
+		i = trainEnv.getEpisodeCount();
+		console.log(i);
+	}
+	const m = trainEnv.agent.model.save();
+	const json = JSON.stringify(m);
+	saveAsJson(json);
+}

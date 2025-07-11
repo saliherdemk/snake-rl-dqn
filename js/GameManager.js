@@ -126,10 +126,10 @@ class GameManager {
 		const danger_left = this.is_collision(head, leftIndex) ? 1 : 0;
 		const danger_right = this.is_collision(head, rightIndex) ? 1 : 0;
 
-		const foodOnLeft = this.foodPosition.x < head.x;
-		const foodOnRight = this.foodPosition.x > head.x;
-		const foodOnUp = this.foodPosition.y < head.y;
-		const foodOnDown = this.foodPosition.y > head.y;
+		const foodOnLeft = this.foodPosition.x < head.x ? 1 : 0;
+		const foodOnRight = this.foodPosition.x > head.x ? 1 : 0;
+		const foodOnUp = this.foodPosition.y < head.y ? 1 : 0;
+		const foodOnDown = this.foodPosition.y > head.y ? 1 : 0;
 
 		return [
 			dir_up,
@@ -146,12 +146,9 @@ class GameManager {
 		];
 	}
 
-	is_collision(head, direction) {
-		const newDirection = this.directions[direction];
-		const newHead = {
-			x: head.x + newDirection.x,
-			y: head.y + newDirection.y,
-		};
+	is_collision(head, dirIndex) {
+		const d = this.directions[dirIndex];
+		const newHead = { x: head.x + d[0], y: head.y + d[1] };
 		return this.checkGameOver(newHead);
 	}
 
@@ -165,15 +162,15 @@ class GameManager {
 		}
 	}
 
-	setDirection(action) {
-		const [x, y] = this.directions[action];
+	setDirection(actionIndex) {
+		const [x, y] = this.directions[actionIndex];
 
 		if (
 			!this.directionChanged &&
 			!(x === -this.direction.x && y === -this.direction.y)
 		) {
 			this.direction = { x, y };
-			this.directionIndex = action;
+			this.directionIndex = actionIndex;
 			this.directionChanged = true;
 			this.started = true;
 		}

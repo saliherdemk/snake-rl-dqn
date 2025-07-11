@@ -15,7 +15,7 @@ class SnakeEnv {
 			new Relu(),
 			new Dense(32, 16),
 			new Relu(),
-			new Dense(16, 4),
+			new Dense(16, 3),
 		]);
 		this.agent = new Agent(model);
 		this.replayBuffer = new ReplayBuffer();
@@ -40,30 +40,34 @@ class SnakeEnv {
 		this.game.setDirection(action);
 	}
 
+	getAbsDirFromRelative(relativeAction) {
+		const turnLeft = [2, 3, 1, 0];
+		const turnRight = [3, 2, 0, 1];
+
+		let newDirIndex = this.game.directionIndex;
+
+		if (relativeAction === 1) {
+			newDirIndex = turnLeft[this.game.directionIndex];
+		} else if (relativeAction === 2) {
+			newDirIndex = turnRight[this.game.directionIndex];
+		}
+
+		return newDirIndex;
+	}
+
 	getReward() {
 		if (this.game.gameOver) return -1;
 		else if (this.game.justAteFood) return 1;
 		else return -0.005;
 	}
 
-	// getReward() {
-	// 	const game = this.game;
-	// 	const head = game.snake[game.snake.length - 1];
-	// 	const food = game.foodPosition;
-	// 	const dist = Math.abs(head.x - food.x) + Math.abs(head.y - food.y);
-	//
-	// 	if (game.gameOver) return -2; // Less extreme penalty
-	// 	if (game.justAteFood) return 1 + 1 / dist; // Distance bonus
-	// 	if (game.starvationTimer > game.snake.length * 2) return -0.1; // Hunger penalty
-	// 	return -0.001; // Tiny step penalty
-	// }
-
 	draw() {
 		if (this.rlMode == "eval") {
 			if (this.game.started) {
 				const currentstate = this.game.getReducedState();
-				const action = this.agent.act(currentstate, true);
-				this.setDirection(action);
+				const relativeAction = this.agent.act(currentstate, true);
+				const absAction = this.getAbsDirFromRelative(relativeAction);
+				this.setDirection(absAction);
 			}
 		} else {
 			this.train();
@@ -74,12 +78,13 @@ class SnakeEnv {
 
 	train() {
 		const currentState = this.game.getReducedState();
-		const action = this.agent.act(currentState);
-		const { state: nextState, reward, done } = this.step(action);
+		const relativeAction = this.agent.act(currentState);
+		const absAction = this.getAbsDirFromRelative(relativeAction);
+		const { state: nextState, reward, done } = this.step(absAction);
 
 		this.replayBuffer.push({
 			state: currentState,
-			action,
+			action: relativeAction,
 			reward,
 			nextState: nextState,
 			done,
@@ -91,10 +96,10 @@ class SnakeEnv {
 		}
 
 		if (done) {
-			// for (let i = 0; i < 5; i++) {
-			// 	const batch = this.replayBuffer.sample(32);
-			// 	this.agent.train(batch);
-			// }
+			for (let i = 0; i < 5; i++) {
+				const batch = this.replayBuffer.sample(64);
+				this.agent.train(batch);
+			}
 			this.episodeCount++;
 			updateEpisodeLabel(this.episodeCount);
 			this.reset();
@@ -114,5 +119,9 @@ class SnakeEnv {
 		);
 		this.rlMode = rlMode;
 		this.reset();
+	}
+
+	getEpisodeCount() {
+		return this.episodeCount;
 	}
 }

@@ -14,10 +14,17 @@
 			<button id="mode-toggle">Mode: Eval</button>
 			<button id="save-button">Save Model</button>
 			<input id="load-button" type="file" accept=".json" />
+			<button id="load-pretrained">Load Pretrained Model</button>
+
 			<label>Eposides: <span id="episode-counter"></span></label>
 		</div>
+		<button id="train">Train</button>
+		<label>Eposides: <span id="train-episode-counter"></span></label>
+
 		<script src="js/p5.min.js"></script>
 		<script src="script.js"></script>
+
+		<script src="Models/pretrained.js"></script>
 
 		<script src="NeuralNet/relu.js"></script>
 		<script src="NeuralNet/dense.js"></script>
