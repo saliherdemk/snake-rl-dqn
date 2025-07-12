@@ -1,13 +1,18 @@
 class Agent {
 	constructor(
-		model,
 		gamma = 0.99,
 		epsilon = 1.0,
 		epsilonDecay = 0.999,
 		minEpsilon = 0.1,
 	) {
-		this.model = model;
-		this.targetModel = model.clone();
+		this.model = new Model([
+			new Dense(14, 32),
+			new Relu(),
+			new Dense(32, 16),
+			new Relu(),
+			new Dense(16, 3),
+		]);
+		this.targetModel = this.model.clone();
 		this.targetUpdateFreq = 100;
 		this.steps = 0;
 		this.gamma = gamma;
@@ -26,8 +31,6 @@ class Agent {
 	}
 
 	train(batch) {
-		let totalLoss = 0;
-
 		for (const { state, action, reward, nextState, done } of batch) {
 			const currentQ = this.model.forward(state);
 
@@ -38,9 +41,6 @@ class Agent {
 			const clippedTargetQ = Math.max(-10, Math.min(10, targetQ));
 
 			this.model.train(currentQ, clippedTargetQ, action);
-
-			const error = currentQ[action] - clippedTargetQ;
-			totalLoss += error ** 2;
 		}
 
 		this.epsilon = Math.max(
@@ -52,8 +52,6 @@ class Agent {
 		if (this.steps % this.targetUpdateFreq === 0) {
 			this.targetModel = this.model.clone();
 		}
-
-		// console.log(totalLoss / batch.length);
 	}
 
 	save() {

@@ -7,14 +7,7 @@ class SnakeEnv {
 	}
 
 	initialize() {
-		const model = new Model([
-			new Dense(14, 32),
-			new Relu(),
-			new Dense(32, 16),
-			new Relu(),
-			new Dense(16, 3),
-		]);
-		this.agent = new Agent(model);
+		this.agent = new Agent();
 		this.replayBuffer = new ReplayBuffer();
 	}
 
