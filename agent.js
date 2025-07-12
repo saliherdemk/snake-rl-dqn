@@ -56,6 +56,10 @@ class Agent {
 		// console.log(totalLoss / batch.length);
 	}
 
+	save() {
+		return this.model.save();
+	}
+
 	load(data) {
 		this.model.load(data);
 		this.targetModel = this.model.clone();

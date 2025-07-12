@@ -39,7 +39,6 @@ class GameManager {
 			this.update();
 			this.lastMoveTime = this.p.millis();
 		}
-		if (!this.started) this.displayInstructions();
 	}
 
 	update() {
@@ -102,8 +101,12 @@ class GameManager {
 			this.direction = { x, y };
 			this.directionIndex = actionIndex;
 			this.directionChanged = true;
-			this.started = true;
 		}
+	}
+
+	start() {
+		if (this.started) return;
+		this.started = true;
 	}
 
 	getRandomCell() {
@@ -119,41 +122,66 @@ class GameManager {
 		this.foodPosition = { x, y };
 	}
 
-	displayGameOver() {
-		let p = this.p;
-		p.fill(255, 0, 0);
-		p.textAlign(p.CENTER, p.CENTER);
-		p.textSize(32);
-		p.text("GAME OVER", p.width / 2, p.height / 4);
-		p.text(
-			"Your Score: " + this.snake.length,
-			p.width / 2,
-			p.height / 2 + 50,
-		);
-	}
-
 	displayGrid() {
 		let p = this.p;
 		let s = p.width / this.gridSize;
 		for (let x = 0; x < this.grid.length; x++) {
 			for (let y = 0; y < this.grid[0].length; y++) {
-				p.fill(
-					this.grid[x][y] === 2
-						? [255, 0, 0]
-						: this.grid[x][y] === 1
-							? [255, 255, 0]
-							: 0,
-				);
+				const val = this.grid[x][y];
+				if (val == 2) {
+					p.fill("#ff00c8");
+				} else if (val == 1) {
+					p.fill("#1de9b6");
+				} else {
+					p.fill("#0b0f2e");
+				}
+
 				p.rect(x * s, y * s, s, s);
 			}
 		}
 	}
 
-	displayInstructions() {
+	displayGameOver() {
 		let p = this.p;
-		p.fill(255);
-		p.textSize(18);
+
+		p.push();
+		p.noStroke();
+		p.fill(11, 15, 46, 200);
+		p.rect(0, 0, p.width, p.height);
+		p.pop();
+
+		p.push();
 		p.textAlign(p.CENTER, p.CENTER);
-		p.text("Press an arrow key to start", p.width / 2, p.height / 2);
+		p.textSize(48);
+		p.fill("#ff1744");
+		p.stroke("#ff1744");
+		p.strokeWeight(2);
+
+		p.drawingContext.shadowBlur = 25;
+		p.drawingContext.shadowColor = "#ff1744";
+		p.text("GAME OVER", p.width / 2, p.height / 3);
+		p.pop();
+
+		p.push();
+		p.textAlign(p.CENTER, p.CENTER);
+		p.textSize(24);
+		p.fill("#00f0ff");
+		p.noStroke();
+		p.drawingContext.shadowBlur = 10;
+		p.drawingContext.shadowColor = "#00f0ff";
+		p.text("Your Score: " + this.getScore(), p.width / 2, p.height / 2);
+		p.pop();
+
+		p.push();
+		p.textAlign(p.CENTER, p.CENTER);
+		p.textSize(18);
+		p.fill("rgba(255, 255, 255, 0.6)");
+		p.noStroke();
+		p.text("Press R to restart", p.width / 2, p.height / 2 + 40);
+		p.pop();
+	}
+
+	getScore() {
+		return this.snake.length;
 	}
 }

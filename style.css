@@ -1,3 +1,108 @@
-.disabled {
-  color: lightgray;
+body {
+	background: radial-gradient(circle at top, #00f0ff 0%, #0b0f2e 100%);
+	min-height: 100vh;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	font-family: "Orbitron", sans-serif;
+	color: white;
+	overflow: hidden;
+}
+
+#playground {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	justify-content: center;
+	padding: 2rem;
+	background: rgba(0, 255, 255, 0.08);
+	border-radius: 20px;
+	border: 2px solid rgba(0, 255, 255, 0.3);
+	box-shadow:
+		0 0 40px rgba(0, 255, 255, 0.6),
+		inset 0 0 30px rgba(0, 255, 255, 0.2);
+}
+
+#canvases-container {
+	display: flex;
+	gap: 2rem;
+}
+
+#scores-container {
+	display: flex;
+	justify-content: space-around;
+}
+
+#controls {
+	display: flex;
+	justify-content: center;
+}
+
+#human-controls {
+	margin-top: 10px;
+	flex: 1;
+}
+
+#human-controls > button {
+	width: 100%;
+	margin: 10px;
+}
+
+#ai-controls {
+	width: 425px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 10px;
+	margin: 10px;
+}
+
+.control-row {
+	display: flex;
+	justify-content: center;
+	gap: 10px;
+}
+
+button {
+	background: rgba(0, 255, 255, 0.1);
+	color: #00f0ff;
+	border: 1px solid rgba(0, 255, 255, 0.5);
+	border-radius: 12px;
+	padding: 0.75rem 1.5rem;
+	font-size: 1rem;
+	font-family: "Orbitron", sans-serif;
+	letter-spacing: 1px;
+	cursor: pointer;
+	backdrop-filter: blur(10px);
+	transition: all 0.3s ease;
+	box-shadow:
+		0 0 10px rgba(0, 255, 255, 0.4),
+		inset 0 0 10px rgba(0, 255, 255, 0.2);
+	text-shadow: 0 0 5px #00f0ff;
+}
+
+button:hover {
+	background: rgba(0, 255, 255, 0.2);
+	box-shadow:
+		0 0 20px rgba(0, 255, 255, 0.6),
+		inset 0 0 15px rgba(0, 255, 255, 0.3);
+	color: #ffffff;
+	text-shadow: 0 0 10px #00f0ff;
+}
+
+button:disabled {
+	background: rgba(0, 255, 255, 0.05);
+	color: rgba(0, 255, 255, 0.3);
+	border: 1px solid rgba(0, 255, 255, 0.1);
+	box-shadow: none;
+	text-shadow: none;
+	cursor: not-allowed;
+	pointer-events: none;
+	transition: none;
+}
+
+#load-input {
+	display: none;
 }

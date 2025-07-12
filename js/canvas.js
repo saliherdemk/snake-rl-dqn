@@ -15,13 +15,18 @@ const humanSketch = (p) => {
 		p.background(0);
 		p.frameRate(60);
 		game.draw();
+		document.getElementById("human-score").innerText = game.getScore();
 	};
 
 	p.keyPressed = () => {
-		if (p.key === "r") {
+		const key = p.key.toLowerCase();
+		if (key === "r") {
 			game.initialize();
-			env.game.initialize();
+			env.reset();
 			return;
+		} else if (key === "s") {
+			game.start();
+			env.startGame();
 		}
 
 		let direction = null;
@@ -32,7 +37,6 @@ const humanSketch = (p) => {
 
 		if (direction !== null) {
 			game.setDirection(direction);
-			env.startGame();
 		}
 	};
 };
@@ -48,6 +52,7 @@ const rlSketch = (p) => {
 		p.background(0);
 		p.frameRate(60);
 		env.draw();
+		document.getElementById("ai-score").innerText = env.game.getScore();
 	};
 };
 

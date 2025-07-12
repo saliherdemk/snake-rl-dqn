@@ -18,7 +18,8 @@ class SnakeEnv {
 		this.replayBuffer = new ReplayBuffer();
 	}
 
-	reset() {
+	reset(fromTrain = false) {
+		if (this.rlMode == "train" && !fromTrain) return;
 		this.game.initialize();
 	}
 
@@ -99,14 +100,14 @@ class SnakeEnv {
 			}
 			this.episodeCount++;
 			updateEpisodeLabel(this.episodeCount);
-			this.reset();
+			this.reset(true);
 		}
 	}
 
 	startGame() {
-		if (this.game.started) return;
-		const action = Math.floor(Math.random() * 4);
-		this.setDirection(action);
+		if (this.rlMode == "train") return;
+
+		this.game.start();
 	}
 
 	toggleMode() {
@@ -116,6 +117,8 @@ class SnakeEnv {
 		);
 		this.rlMode = rlMode;
 		this.reset();
+
+		return rlMode;
 	}
 
 	getEpisodeCount() {
@@ -124,5 +127,16 @@ class SnakeEnv {
 
 	getReducedState() {
 		return StateExtractor.getReducedState(this.game);
+	}
+
+	save() {
+		const data = this.agent.save();
+		return { data: data, episodeCount: this.episodeCount };
+	}
+
+	load(data) {
+		this.agent.load(data.data);
+		this.episodeCount = data.episodeCount;
+		updateEpisodeLabel(this.episodeCount);
 	}
 }

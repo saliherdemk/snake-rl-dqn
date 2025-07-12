@@ -16,7 +16,23 @@ function saveAsJson(data) {
 	URL.revokeObjectURL(url);
 }
 
-document.getElementById("load-button").addEventListener("change", (event) => {
+function toggleButtons(rlMode) {
+	const buttonIds = [
+		"save-button",
+		"load-button",
+		"load-pretrained",
+		"train",
+	];
+	buttonIds.forEach((buttonId) => {
+		document.getElementById(buttonId).disabled = rlMode == "train";
+	});
+}
+
+document.getElementById("load-button").addEventListener("click", (event) => {
+	document.getElementById("load-input").click();
+});
+
+document.getElementById("load-input").addEventListener("change", (event) => {
 	const file = event.target.files[0];
 	if (!file) return;
 
@@ -24,7 +40,7 @@ document.getElementById("load-button").addEventListener("change", (event) => {
 	reader.onload = function (e) {
 		try {
 			const json = JSON.parse(e.target.result);
-			env.agent.load(json);
+			env.load(json);
 		} catch (err) {
 			alert("Invalid JSON file." + err);
 		}
@@ -33,33 +49,44 @@ document.getElementById("load-button").addEventListener("change", (event) => {
 });
 
 document.getElementById("mode-toggle").onclick = () => {
-	env.toggleMode();
+	const rlMode = env.toggleMode();
+	toggleButtons(rlMode);
 };
 
 document.getElementById("save-button").onclick = () => {
-	const m = env.agent.model.save();
+	const m = env.save();
 	const json = JSON.stringify(m);
 	saveAsJson(json);
 };
 
 document.getElementById("load-pretrained").onclick = () => {
-	env.agent.load(preTrainedModel);
+	env.load(preTrainedModel);
 };
 
 document.getElementById("train").onclick = () => {
 	train();
 };
 
+document.getElementById("start-vs").onclick = () => {
+	game.start();
+	env.startGame();
+};
+
+document.getElementById("restart-vs").onclick = () => {
+	game.initialize();
+	env.reset();
+};
+
 function train() {
 	const trainEnv = new SnakeEnv(null);
 
 	let i = trainEnv.getEpisodeCount();
-	while (i < 1000) {
+	while (i < 3000) {
 		trainEnv.train();
 		i = trainEnv.getEpisodeCount();
 		console.log(i);
 	}
-	const m = trainEnv.agent.model.save();
+	const m = trainEnv.save();
 	const json = JSON.stringify(m);
 	saveAsJson(json);
 }

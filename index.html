@@ -7,20 +7,45 @@
 		<link href="style.css" rel="stylesheet" />
 	</head>
 	<body>
-		<div id="human-canvas"></div>
-		<div id="rl-canvas"></div>
-
-		<div id="controls">
-			<button id="mode-toggle">Mode: Eval</button>
-			<button id="save-button">Save Model</button>
-			<input id="load-button" type="file" accept=".json" />
-			<button id="load-pretrained">Load Pretrained Model</button>
-
-			<label>Eposides: <span id="episode-counter"></span></label>
+		<div id="main-container">
+			<div id="playground">
+				<div id="canvases-container">
+					<div id="human-canvas"></div>
+					<div id="rl-canvas"></div>
+				</div>
+				<div id="scores-container">
+					<span>Score: <span id="human-score">0</span> </span>
+					<span>Score: <span id="ai-score">0</span> </span>
+				</div>
+			</div>
+			<div id="controls">
+				<div id="human-controls">
+					<button id="start-vs">Start Challange (S)</button>
+					<button id="restart-vs">Restart (R)</button>
+				</div>
+				<div id="ai-controls">
+					<div class="control-row">
+						Trained for <span id="episode-counter">0</span> episodes
+					</div>
+					<div class="control-row">
+						<button id="mode-toggle">Mode: Eval</button>
+						<button id="save-button">Save Model</button>
+					</div>
+					<div class="control-row">
+						<div class="file-upload">
+							<button id="load-button">Load Model</button>
+							<input id="load-input" type="file" accept=".json" />
+						</div>
+						<button id="load-pretrained">
+							Load Pretrained Model
+						</button>
+					</div>
+					<div class="control-row">
+						<button id="train">Train without UI update</button>
+					</div>
+				</div>
+			</div>
 		</div>
-		<button id="train">Train</button>
-		<label>Eposides: <span id="train-episode-counter"></span></label>
-
 		<script src="js/p5.min.js"></script>
 		<script src="script.js"></script>
 
