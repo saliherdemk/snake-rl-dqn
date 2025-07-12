@@ -22,9 +22,9 @@ class StateExtractor {
 		const danger_left = game.checkGameOver(nextLeft) ? 1 : 0;
 		const danger_right = game.checkGameOver(nextRight) ? 1 : 0;
 
-		const trap_straight = this.isDirectionSafe(game, nextStr) ? 1 : 0;
-		const trap_left = this.isDirectionSafe(game, nextLeft) ? 1 : 0;
-		const trap_right = this.isDirectionSafe(game, nextRight) ? 1 : 0;
+		const straight_safe = this.isDirectionSafe(game, nextStr) ? 1 : 0;
+		const left_safe = this.isDirectionSafe(game, nextLeft) ? 1 : 0;
+		const right_safe = this.isDirectionSafe(game, nextRight) ? 1 : 0;
 
 		const foodOnLeft = game.foodPosition.x < head.x ? 1 : 0;
 		const foodOnRight = game.foodPosition.x > head.x ? 1 : 0;
@@ -39,9 +39,9 @@ class StateExtractor {
 			danger_straight,
 			danger_left,
 			danger_right,
-			trap_straight,
-			trap_left,
-			trap_right,
+			straight_safe,
+			left_safe,
+			right_safe,
 			foodOnLeft,
 			foodOnRight,
 			foodOnUp,
