@@ -24,7 +24,7 @@ class GameManager {
 		this.snake = [snakePos];
 		this.grid[snakePos.x][snakePos.y] = 1;
 		this.direction = { x: 1, y: 0 };
-		this.directionChanged = false;
+		this.directionQueue = [];
 		this.directionIndex = 3;
 		this.placeFood();
 	}
@@ -45,6 +45,7 @@ class GameManager {
 		this.clearGrid();
 		const snake = this.snake;
 		const head = snake[snake.length - 1];
+		this.processDirectionQueue();
 		const newHead = {
 			x: head.x + this.direction.x,
 			y: head.y + this.direction.y,
@@ -58,7 +59,7 @@ class GameManager {
 			newHead.y === this.foodPosition.y
 		) {
 			this.justAteFood = true;
-			this.moveInterval = Math.max(this.moveInterval - 5, 40);
+			this.moveInterval = Math.max(this.moveInterval - 2, 30);
 		} else {
 			this.justAteFood = false;
 			snake.shift();
@@ -66,7 +67,6 @@ class GameManager {
 
 		for (let s of snake) this.grid[s.x][s.y] = 1;
 		if (this.justAteFood) this.placeFood();
-		this.directionChanged = false;
 	}
 
 	checkGameOver(newHead) {
@@ -94,14 +94,22 @@ class GameManager {
 
 	setDirection(actionIndex) {
 		const [x, y] = this.directions[actionIndex];
-		if (
-			!this.directionChanged &&
-			!(x === -this.direction.x && y === -this.direction.y)
-		) {
-			this.direction = { x, y };
-			this.directionIndex = actionIndex;
-			this.directionChanged = true;
+		if (x === -this.direction.x && y === -this.direction.y) return;
+
+		const last = this.directionQueue[this.directionQueue.length - 1];
+		if (last && last.actionIndex === actionIndex) return;
+
+		this.directionQueue.push({ x, y, actionIndex });
+		if (this.directionQueue.length > 2) {
+			this.directionQueue.shift();
 		}
+	}
+
+	processDirectionQueue() {
+		if (this.directionQueue.length == 0) return;
+		const { x, y, actionIndex } = this.directionQueue.shift();
+		this.direction = { x, y };
+		this.directionIndex = actionIndex;
 	}
 
 	start() {
