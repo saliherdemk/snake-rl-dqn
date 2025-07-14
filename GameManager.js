@@ -93,16 +93,24 @@ class GameManager {
 	}
 
 	setDirection(actionIndex) {
+		const queue = this.directionQueue;
 		const [x, y] = this.directions[actionIndex];
-		if (x === -this.direction.x && y === -this.direction.y) return;
 
-		const last = this.directionQueue[this.directionQueue.length - 1];
-		if (last && last.actionIndex === actionIndex) return;
+		const last =
+			queue.length > 0
+				? queue[queue.length - 1]
+				: {
+						x: this.direction.x,
+						y: this.direction.y,
+						actionIndex: this.directionIndex,
+					};
 
-		this.directionQueue.push({ x, y, actionIndex });
-		if (this.directionQueue.length > 2) {
-			this.directionQueue.shift();
-		}
+		if (x === -last.x && y === -last.y) return;
+		if (last.actionIndex === actionIndex) return;
+
+		queue.push({ x, y, actionIndex });
+
+		if (queue.length > 2) queue.shift();
 	}
 
 	processDirectionQueue() {
